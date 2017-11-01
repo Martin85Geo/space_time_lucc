@@ -50,10 +50,10 @@ library(rgdal)                               # GDAL wrapper for R, spatial utili
 library(gstat)                               # Kriging and co-kriging by Pebesma et al.
 library(fields)                              # NCAR Spatial Interpolation methods such as kriging, splines
 library(raster)                              # Hijmans et al. package for raster processing
-library(rasterVis)
 library(spgwr)
 library(reshape)
 library(sf)
+library('httr')
 
 #################################
 ### Functions used in the script:
@@ -78,17 +78,17 @@ load_obj <- function(f){
   env[[nm]]
 }
 
-function_analyses_paper <-"MODIS_and_raster_processing_functions_10222017.R"
-script_path <- "/home/bparmentier/Google Drive/Space_beats_time/sbt_scripts"  #path to script functions
+function_analyses_paper <-"MODIS_and_raster_processing_functions.R"
+script_path <- "C:/Users/Me/Documents/code/space_time_lucc"  #path to script functions
 source(file.path(script_path,function_analyses_paper)) #source all functions used in this script.
 
 ################################
 ###### Parameters and arguments
 
 #in_dir <- "/home/bparmentier/Google Drive/Space_beats_time/Data/data_AZ_jacob" #param1
-in_dir <- "/home/bparmentier/Google Drive/Space_beats_time/Data/data_Rita_NDVI"
+in_dir <- "C:/Users/Me/Documents/belspo/test"
 #data_fname <- file.path("~/Data/Space_beats_time/stu/Katrina/run2/csv","Katrina2.csv")
-out_dir <- "/home/bparmentier/Google Drive/Space_beats_time/Data/data_Rita_NDVI" #param2
+out_dir <- "C:/Users/Me/Documents/belspo/test" #param2
 
 proj_modis_str <-"+proj=sinu +lon_0=0 +x_0=0 +y_0=0 +a=6371007.181 +b=6371007.181 +units=m +no_defs" 
 #CRS_reg <-"+proj=longlat +ellps=WGS84 +datum=WGS84 +towgs84=0,0,0" #Station coords WGS84
@@ -109,7 +109,7 @@ create_out_dir_param=FALSE #param7
 
 #infile_reg_outline=""  #input region outline defined by polygon: none Katrina
 infile_reg_outline=NULL #param9
-infile_reg_outline<- "/home/bparmentier/Google Drive/Space_beats_time/Data/data_Rita_NDVI/rita_outline_reg/Study_Area_Rita_New.shp"
+infile_reg_outline<- "C:/Users/Me/Documents/belspo/test/Fairfax_County_Border.shp"
 #This is the shape file of outline of the study area                                                      #It is an input/output of the covariate script
 #infile_reg_outline <- "/data/project/layers/commons/Oregon_interpolation/MODIS_processing_07072014/region_outlines_ref_files/OR83M_state_outline.shp" #input region outline defined by polygon: Oregon
 
@@ -121,7 +121,7 @@ ref_rast_name <- NULL #if null use the first image to define projection area
 #ref_rast_name <- "/home/bparmentier/Google Drive/Space_beats_time/Data/data_AZ_jacob/reference_region_study_area_AZ.rst"
 #ref_rast_name <- "/home/bparmentier/Google Drive/Space_beats_time/Data/data_AZ_jacob/Arizona_Outline_State_Plane/Arizona_Outlline_State_Plane.shp"
 #ref_rast_name<-"/home/parmentier/Data/IPLANT_project/MODIS_processing_0970720134/region_outlines_ref_files/mean_day244_rescaled.rst" #local raster name defining resolution, exent: oregon
-infile_modis_grid <- "/home/bparmentier/Google Drive/Space_beats_time/Data/modis_reference_grid/modis_sinusoidal_grid_world.shp" #param11
+infile_modis_grid <- "C:/Users/Me/Documents/belspo/test/modis_sinusoidal_grid_world.shp" #param11
 
 ## Other specific parameters
 
@@ -129,7 +129,7 @@ MODIS_product <- "MOD13A2.006" #NDVI/EVI 1km product (monthly) #param12
 #MODIS_product <- "MOD11A1.006"
 #MODIS_product <- "MOD11A2.006" #should be product name
 start_date <- "2001.01.01"  #param13
-end_date <- "2010.12.31"  #param14
+end_date <- "2002.12.31"  #param14
 #end_date <- "2001.01.10"
 
 #/home/bparmentier/Google Drive/Space_beats_time/Data/modis_reference_grid
@@ -150,7 +150,7 @@ scaling_factors <- c(0.0001,0) #set up as slope (a) and intercept (b), if NULL, 
 product_type = c("NDVI") #can be LST, ALBEDO etc.#this can be set from the modis product!! #param 19
 #product_type = c("LST") #can be LST, ALBEDO etc.
 
-num_cores <- 4 #param 20
+num_cores <- 1 #param 20
 
 #Parameters/arguments not in use yet...
 #num_cores <- 10 #number of cores used in parallel processing...
@@ -163,6 +163,11 @@ agg_param <- c(FALSE,NULL,"mean") #False means there is no aggregation!!! #param
 #run all processing steps
 #param21
 save_textfile <- TRUE
+
+
+#rdata file with user and pass for earthdata
+userpass = 'C:/Users/Me/Documents/belspo/test/lpdaac.Rdata'
+load(userpass)
 
 steps_to_run <- list(download=TRUE,       #1rst step
                      import=TRUE,          #2nd step

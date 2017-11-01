@@ -743,7 +743,10 @@ modis_product_download <- function(MODIS_product,version,start_date,end_date,lis
     file_items <- list_files_tiles[[j]]
     for (i in 1:length(file_items)){
       file_item <- file_items[i]
-      #download.file(file_item,destfile=file.path(out_dir_tiles[j],basename(file_item)))
+      #use httr for windows shenanigans
+      #username and password are stored in an rdata file
+      httr::GET(file_item, authenticate(username, pass), write_disk(file.path(out_dir_tiles[j],basename(file_item)), overwrite = T))
+      
       #download.file(file_item,destfile="test.hdf")
       ## need a .netrc file,
       ##set the file to at least Read (400) or Read/Write (600)
@@ -752,12 +755,12 @@ modis_product_download <- function(MODIS_product,version,start_date,end_date,lis
       #system("curl -n -L -c cookiefile -b cookiefile http://e4ftl01.cr.usgs.gov/MOLT/MOD09A1.006/2001.01.09/MOD09A1.A2001009.h13v01.006.2015140120258.hdf.xml") 
       
       #system("curl -n -L -c cookiefile -b cookiefile https://e4ftl01.cr.usgs.gov/MOLT/MOD09A1.006/2001.01.09/MOD09A1.A2001009.h13v01.006.2015140120258.hdf --output MOD09A1.A2001009.h13v01.006.2015140120258.hdf")
-      cmd_curl_str <- paste("curl -n -L -c cookiefile -b cookiefile",
-                            file_item,
-                            "--output",
-                            paste0("'",file.path(out_dir_tiles[j],basename(file_item)),"'")
-                            ) 
-      system(cmd_curl_str)
+      # cmd_curl_str <- paste("curl -n -L -c cookiefile -b cookiefile",
+      #                       file_item,
+      #                       "--output",
+      #                       paste0("'",file.path(out_dir_tiles[j],basename(file_item)),"'")
+      #                       ) 
+      # system(cmd_curl_str)
       #system("curl -n -L -c cookiefile -b cookiefile https://e4ftl01.cr.usgs.gov/MOLT/MOD11A1.006/2001.01.01/MOD11A1.A2001001.h08v05.006.2015111170727.hdf")
       #myopts <- RCurl::curlOptions(netrc=TRUE, netrc.file=path.expand("~/.netrc"), 
       #                             cookiefile=path.expand("~/.urs_cookies"), 
